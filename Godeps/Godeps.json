@@ -1,0 +1,22 @@
+{
+	"ImportPath": "github.com/dukex/soundcloud_to_podcast",
+	"GoVersion": "go1.2",
+	"Deps": [
+		{
+			"ImportPath": "github.com/gorilla/feeds",
+			"Rev": "ced1bd794b051ade0f28996a2cdd7524676c5851"
+		},
+		{
+			"ImportPath": "github.com/ricallinson/forgery",
+			"Rev": "71b50cc1067e72166891ab1ad04ead3c83e1890f"
+		},
+		{
+			"ImportPath": "github.com/ricallinson/httputils",
+			"Rev": "f8740e04d1c731b44cf4ab02c6bd9c04c54830b2"
+		},
+		{
+			"ImportPath": "github.com/ricallinson/stackr",
+			"Rev": "96077540c8dfc38f847cf8f325e3af864d1fbc5e"
+		}
+	]
+}
