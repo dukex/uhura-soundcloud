@@ -43,6 +43,8 @@ type rssFeedXml struct {
 	Channel *feeds.RssFeed
 }
 
+// TODO: get user and description from api
+// TODO: api key on config
 func generateFeed(tracks T, username string) *feeds.RssFeed {
 	items := []*feeds.RssItem{}
 	rss := &feeds.RssFeed{
@@ -74,7 +76,7 @@ func main() {
 	app.Get("/", func(req *f.Request, res *f.Response, next func()) {
 		res.Set("Content-Type", "text/xml")
 		//
-		res.Send("<duke>d</duke>")
+		res.Send("<duke></duke>")
 	})
 
 	app.Get("/:username", func(req *f.Request, res *f.Response, next func()) {
