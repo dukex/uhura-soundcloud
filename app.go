@@ -6,7 +6,6 @@ import (
 	"github.com/gorilla/feeds"
 	"github.com/ricallinson/forgery"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -28,10 +27,7 @@ type T struct {
 func getTracks(username string) ([]byte, error) {
 	apiUrl := "http://api.soundcloud.com/users/" + username + "/tracks.xml?client_id=9747d5436f4eafe5dcb2c410da9ec009"
 
-	resSoundcloud, err := http.Get(apiUrl)
-	if err != nil {
-		log.Fatal(err)
-	}
+	resSoundcloud, _ := http.Get(apiUrl)
 	defer resSoundcloud.Body.Close()
 
 	return ioutil.ReadAll(resSoundcloud.Body)
