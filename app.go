@@ -58,7 +58,7 @@ func getUser(username string) (UserBody, error) {
 
 	apiUrl := "http://api.soundcloud.com/users/" + username + ".xml?client_id=" + API_KEY
 	log.Println(apiUrl)
-	resSoundcloud, _ := http.Get(apiUrl)
+	resSoundcloud, err := http.Get(apiUrl)
 	defer resSoundcloud.Body.Close()
 	if err != nil {
 		log.Fatal(err)
