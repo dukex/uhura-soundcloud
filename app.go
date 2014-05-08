@@ -2,13 +2,14 @@ package main
 
 import (
 	"encoding/xml"
-	"fmt"
-	"github.com/gorilla/feeds"
-	"github.com/ricallinson/forgery"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
+
+	"github.com/gorilla/feeds"
+	"github.com/ricallinson/forgery"
 )
 
 type Track struct {
@@ -20,17 +21,48 @@ type Track struct {
 	StreamUrl   string `xml:"stream-url"`
 }
 
-type T struct {
+type TrackBody struct {
 	Tracks []Track `xml:"track"`
 }
 
-func getTracks(username string) ([]byte, error) {
-	apiUrl := "http://api.soundcloud.com/users/" + username + "/tracks.xml?client_id=9747d5436f4eafe5dcb2c410da9ec009"
+type UserBody struct {
+	Avatar      string `xml:"avatar-url"`
+	Description string `xml:"description"`
+	Username    string `xml:"username"`
+}
+
+var API_KEY string
+
+func getTracks(username string) (TrackBody, error) {
+	var result TrackBody
+
+	apiUrl := "http://api.soundcloud.com/users/" + username + "/tracks.xml?client_id=" + API_KEY
 
 	resSoundcloud, _ := http.Get(apiUrl)
 	defer resSoundcloud.Body.Close()
 
-	return ioutil.ReadAll(resSoundcloud.Body)
+	tracksXml, err := ioutil.ReadAll(resSoundcloud.Body)
+	if err != nil {
+		return result, err
+	}
+
+	xml.Unmarshal(tracksXml, &result)
+	return result, err
+}
+
+func getUser(username string) (UserBody, error) {
+	var result UserBody
+
+	apiUrl := "http://api.soundcloud.com/users/" + username + ".xml?client_id=" + API_KEY
+	resSoundcloud, _ := http.Get(apiUrl)
+	defer resSoundcloud.Body.Close()
+
+	userXml, err := ioutil.ReadAll(resSoundcloud.Body)
+	if err != nil {
+		return result, err
+	}
+	xml.Unmarshal(userXml, &result)
+	return result, err
 }
 
 type rssFeedXml struct {
@@ -39,15 +71,29 @@ type rssFeedXml struct {
 	Channel *feeds.RssFeed
 }
 
-// TODO: get user and description from api
-// TODO: api key on config
-func generateFeed(tracks T, username string) *feeds.RssFeed {
-	items := []*feeds.RssItem{}
-	rss := &feeds.RssFeed{
-		Title:       "Soundcloud " + username,
-		Description: "Soundcloud Musics From " + username,
-		Link:        "soundcloud.com/" + username,
+func generateFeed(username string) *feeds.RssFeed {
+	user, err := getUser(username)
+	if err != nil {
+		log.Fatal(err)
 	}
+
+	tracks, err := getTracks(username)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	items := []*feeds.RssItem{}
+
+	log.Println(user)
+	rss := &feeds.RssFeed{
+		Title:       user.Username,
+		Description: user.Description,
+		Link:        "soundcloud.com/" + username,
+		Image: &feeds.RssImage{
+			Url: user.Avatar,
+		},
+	}
+	log.Println(tracks)
 	for _, track := range tracks.Tracks {
 		items = append(items, &feeds.RssItem{
 			Title:       track.Title,
@@ -63,6 +109,7 @@ func generateFeed(tracks T, username string) *feeds.RssFeed {
 
 func main() {
 	port, err := strconv.Atoi(os.Getenv("PORT"))
+	API_KEY = os.Getenv("API_KEY")
 	if err != nil {
 		port = 3003
 	}
@@ -71,26 +118,19 @@ func main() {
 
 	app.Get("/", func(req *f.Request, res *f.Response, next func()) {
 		res.Set("Content-Type", "text/xml")
-		//
 		res.Send("<duke></duke>")
 	})
 
 	app.Get("/:username", func(req *f.Request, res *f.Response, next func()) {
-		tracksXml, _ := getTracks(req.Params["username"])
-
-		var result T
-		xml.Unmarshal(tracksXml, &result)
-
-		feed := generateFeed(result, req.Params["username"])
+		feed := generateFeed(req.Params["username"])
 
 		res.Set("Content-Type", "text/xml")
 
 		rss := &rssFeedXml{Version: "2.0", Channel: feed}
-		fmt.Println(*rss)
 		x, _ := xml.Marshal(rss)
 		res.Send(x)
 	})
 
-	fmt.Println("Starting server on", port)
+	log.Println("Starting server on", port)
 	app.Listen(port)
 }
