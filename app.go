@@ -37,10 +37,13 @@ func getTracks(username string) (TrackBody, error) {
 	var result TrackBody
 
 	apiUrl := "http://api.soundcloud.com/users/" + username + "/tracks.xml?client_id=" + API_KEY
+	log.Println(apiUrl)
 
-	resSoundcloud, _ := http.Get(apiUrl)
+	resSoundcloud, err := http.Get(apiUrl)
 	defer resSoundcloud.Body.Close()
-
+	if err != nil {
+		log.Fatal(err)
+	}
 	tracksXml, err := ioutil.ReadAll(resSoundcloud.Body)
 	if err != nil {
 		return result, err
@@ -54,9 +57,12 @@ func getUser(username string) (UserBody, error) {
 	var result UserBody
 
 	apiUrl := "http://api.soundcloud.com/users/" + username + ".xml?client_id=" + API_KEY
+	log.Println(apiUrl)
 	resSoundcloud, _ := http.Get(apiUrl)
 	defer resSoundcloud.Body.Close()
-
+	if err != nil {
+		log.Fatal(err)
+	}
 	userXml, err := ioutil.ReadAll(resSoundcloud.Body)
 	if err != nil {
 		return result, err
