@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/gorilla/feeds"
 	"github.com/ricallinson/forgery"
@@ -37,7 +38,6 @@ func getTracks(username string) (TrackBody, error) {
 	var result TrackBody
 
 	apiUrl := "http://api.soundcloud.com/users/" + username + "/tracks.xml?client_id=" + API_KEY
-	log.Println(apiUrl)
 
 	resSoundcloud, err := http.Get(apiUrl)
 	defer resSoundcloud.Body.Close()
@@ -57,7 +57,6 @@ func getUser(username string) (UserBody, error) {
 	var result UserBody
 
 	apiUrl := "http://api.soundcloud.com/users/" + username + ".xml?client_id=" + API_KEY
-	log.Println(apiUrl)
 	resSoundcloud, err := http.Get(apiUrl)
 	defer resSoundcloud.Body.Close()
 	if err != nil {
@@ -90,7 +89,6 @@ func generateFeed(username string) *feeds.RssFeed {
 	}
 	items := []*feeds.RssItem{}
 
-	log.Println(user)
 	rss := &feeds.RssFeed{
 		Title:       user.Username,
 		Description: user.Description,
@@ -99,13 +97,13 @@ func generateFeed(username string) *feeds.RssFeed {
 			Url: user.Avatar,
 		},
 	}
-	log.Println(tracks)
 	for _, track := range tracks.Tracks {
+		pubDate, _ := time.Parse(time.RFC3339, track.CreatedAt)
 		items = append(items, &feeds.RssItem{
 			Title:       track.Title,
 			Link:        track.Link,
 			Description: track.Description,
-			PubDate:     track.CreatedAt,
+			PubDate:     pubDate.String(),
 			Enclosure:   &feeds.RssEnclosure{Url: track.StreamUrl + "?client_id=9747d5436f4eafe5dcb2c410da9ec009"},
 		})
 	}
