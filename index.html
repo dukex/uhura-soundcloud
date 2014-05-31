@@ -1,0 +1,35 @@
+<html>
+<head>
+  <title>Soundcloud To RSS</title>
+  <link rel="stylesheet" type="text/css" href="http://dashboard.uhuraapp.com/assets/app.css">
+  <style type="text/css">
+  form{
+    margin: 20% auto 0 ;
+    width: 45%;
+  }
+  form.uk-form label {
+    font-size: 40px;
+    line-height: 1.5;
+  }
+
+  form.uk-form input[type="text"] {
+    width: 100%;
+    font-size: 50px;
+    padding: 10px 20px;
+    height: auto;
+  }
+  form.uk-form button {
+    float: right;
+    font-size: 20px;
+    padding: 10px 20px;
+  }
+  </style>
+</head>
+<body>
+  <form class="uk-form" id="fast-signup" onsubmit="window.location.pathname = username.value;return false;">
+    <label for="username">Soundcloud Username:</label>
+    <input id='username' type="text" />
+    <button type="submit" class="uk-button-success uk-button">Get RSS</button>
+  </form>
+</body>
+</html>

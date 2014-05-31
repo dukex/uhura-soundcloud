@@ -121,8 +121,9 @@ func main() {
 	app := f.CreateServer()
 
 	app.Get("/", func(req *f.Request, res *f.Response, next func()) {
-		res.Set("Content-Type", "text/xml")
-		res.Send("<duke></duke>")
+		res.Set("Content-Type", "text/html")
+		body, _ := ioutil.ReadFile("index.html")
+		res.Send(string(body))
 	})
 
 	app.Get("/:username", func(req *f.Request, res *f.Response, next func()) {
